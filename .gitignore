@@ -1,0 +1,28 @@
+# Node.js
+node_modules/
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# MacOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# Env files
+.env
+.env.*
+
+# Kubernetes / Helm local
+*.tgz
+helm/values.local.yaml
+
+# Optional:
+*.crt
+*.key
