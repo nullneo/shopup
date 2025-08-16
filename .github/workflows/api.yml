@@ -36,8 +36,6 @@ jobs:
           tags: |
             ghcr.io/nullneo/shopup-api:${{ github.sha }}
           no-cache: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Trivy scan (HIGH/CRITICAL fail)
         uses: aquasecurity/trivy-action@0.24.0
