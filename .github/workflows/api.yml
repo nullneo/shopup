@@ -35,6 +35,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/nullneo/shopup-api:${{ github.sha }}
+          no-cache: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
