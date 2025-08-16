@@ -18,5 +18,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
+
+RUN rm -f /app/package.json /app/package-lock.json /app/npm-shrinkwrap.json || true
 EXPOSE 3000
 CMD ["node","dist/main.js"]
