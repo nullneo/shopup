@@ -1,0 +1,4 @@
+creation_rules:
+  - age: "age1m8j3kug0apggllzxm257hdel2fjymc6a3e6vp2aermedntjyrsdsx52na7"
+    encrypted_regex: '^(data|stringData|password|secret|secrets|DATABASE_URL)$'
+    path_regex: 'deploy/environments/.*/values\.secrets\.enc\.yaml$'

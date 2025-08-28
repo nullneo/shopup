@@ -1,0 +1,13 @@
+apiVersion: v2
+name: shopup
+description: Umbrella chart for ShopUp stack
+type: application
+version: 0.1.0
+dependencies:
+  - name: api
+    version: 0.1.0
+    repository: "file://../api"
+  - name: postgresql
+    version: 16.7.21
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled

@@ -20,9 +20,21 @@ yarn-error.log*
 .env.*
 
 # Kubernetes / Helm local
+deploy/charts/*/charts/
 *.tgz
 helm/values.local.yaml
 
 # Optional:
 *.crt
 *.key
+
+# --- SOPS / age:
+ops/secrets/age.key
+ops/secrets/*.key
+*.dec.yaml
+deploy/environments/**/values.secrets.dec.yaml
+deploy/environments/**/values.secrets.plain.yaml
+
+# CA
+/registries.yaml
+/zscaler_root.crt
