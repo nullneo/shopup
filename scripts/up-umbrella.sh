@@ -57,7 +57,12 @@ fi
 
 # Деплой
 log "Deploy umbrella"
-helm upgrade -i shopup "$CHART" -n "$NS" $EXTRA
+helm upgrade -i shopup "$CHART" -n "$NS" \
+  -f "$CHART/values.yaml" \
+  -f <(sops -d deploy/environments/dev/values.secrets.enc.yaml) \
+  $EXTRA \
+  --wait --atomic --timeout 5m
+
 # helm upgrade -i shopup "$CHART" -n "$NS" "${EXTRA[@]}" --wait --atomic --timeout 5m
 
 # Проверки
