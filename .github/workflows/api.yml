@@ -2,9 +2,10 @@ name: api-ci
 on:
   push:
     paths:
-      - 'services/api/**'
-      - 'services/api/Dockerfile'
+      - 'services/**'
       - '.github/workflows/api.yml'
+      - 'deploy/**'
+      - 'scripts/**'
   pull_request:
     paths:
       - 'services/api/**'
