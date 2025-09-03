@@ -7,6 +7,7 @@ CHART="${CHART:-deploy/charts/shopup}"
 USE_LOCAL="${USE_LOCAL:-0}"  # 0=GHCR, 1=local
 GHCR_REPO="${GHCR_REPO:-ghcr.io/nullneo/shopup-api}"
 GHCR_TAG="${GHCR_TAG:-}"     # обязателен, если USE_LOCAL=0
+PIN_BY_DIGEST="${PIN_BY_DIGEST:-0}"
 LOCAL_IMAGE="${LOCAL_IMAGE:-shopup-api}"
 LOCAL_TAG="${LOCAL_TAG:-dev}"
 HOST="${HOST:-api.shopup.localhost}"
@@ -48,11 +49,14 @@ if [ "$USE_LOCAL" = "1" ]; then
   docker build -t "$LOCAL_IMAGE:$LOCAL_TAG" services/api
   k3d image import "$LOCAL_IMAGE:$LOCAL_TAG" -c "$CLUSTER"
   EXTRA="--set api.image.repository=$LOCAL_IMAGE --set api.image.tag=$LOCAL_TAG"
+elif [ "$PIN_BY_DIGEST" = "1" ]; then
+  : "${DIGEST:?Set DIGEST=sha256:... or PIN_BY_DIGEST=0}"
+  docker manifest inspect "$GHCR_REPO@$DIGEST" >/dev/null || { echo "нет такого digest"; exit 1; }
+  EXTRA="--set api.image.repository=$GHCR_REPO --set api.image.tag= --set-string api.image.digest=$DIGEST"
 else
-  if [ -z "$GHCR_TAG" ]; then
-    echo "Set GHCR_TAG=<commit-sha> or USE_LOCAL=1" >&2; exit 1
-  fi
-  EXTRA="--set api.image.repository=$GHCR_REPO --set api.image.tag=$GHCR_TAG"
+  : "${GHCR_TAG:?Set GHCR_TAG=<commit-sha> or PIN_BY_DIGEST=1}"
+  docker manifest inspect "$GHCR_REPO:$GHCR_TAG" >/dev/null || { echo "нет такого тега"; exit 1; }
+  EXTRA="--set api.image.repository=$GHCR_REPO --set api.image.tag=$GHCR_TAG --set api.image.digest="
 fi
 
 # Деплой
@@ -62,8 +66,6 @@ helm upgrade -i shopup "$CHART" -n "$NS" \
   -f <(sops -d deploy/environments/dev/values.secrets.enc.yaml) \
   $EXTRA \
   --wait --atomic --timeout 5m
-
-# helm upgrade -i shopup "$CHART" -n "$NS" "${EXTRA[@]}" --wait --atomic --timeout 5m
 
 # Проверки
 kubectl -n "$NS" rollout status deploy/shopup-api
