@@ -1,0 +1,13 @@
+api:
+  ingress:
+    hosts:
+      - host: api.shopup.localhost
+        paths: [ { path: "/", pathType: Prefix } ]
+    tls:
+      - secretName: api-tls
+        hosts: [ api.shopup.localhost ]
+
+postgresql:
+  primary:
+    persistence:
+      size: 5Gi
