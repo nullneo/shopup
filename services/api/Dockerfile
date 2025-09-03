@@ -13,6 +13,7 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
+
 FROM gcr.io/distroless/nodejs20-debian12:nonroot
 WORKDIR /app
 ENV NODE_ENV=production
