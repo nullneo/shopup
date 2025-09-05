@@ -2,7 +2,7 @@ api:
   image:
     repository: ghcr.io/nullneo/shopup-api
     tag: "dev"
-    digest: "sha256:3da90f1424f74278b755909a5b8065cac08309c9db3ac0279a8a94819c249ffe"
+    digest: "sha256:0372c9a29746526774d6c8a521b79c7c849b2d76e555902d85cb74b699e6704e"
     pullPolicy: IfNotPresent
   ingress:
     enabled: true
