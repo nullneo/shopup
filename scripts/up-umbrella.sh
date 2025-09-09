@@ -44,19 +44,22 @@ helm repo add bitnami https://charts.bitnami.com/bitnami >/dev/null 2>&1 || true
 helm dependency update "$CHART" >/dev/null
 
 # Образ
-if [ "$USE_LOCAL" = "1" ]; then
-  log "Build & import local image $LOCAL_IMAGE:$LOCAL_TAG"
-  docker build -t "$LOCAL_IMAGE:$LOCAL_TAG" services/api
-  k3d image import "$LOCAL_IMAGE:$LOCAL_TAG" -c "$CLUSTER"
-  EXTRA="--set api.image.repository=$LOCAL_IMAGE --set api.image.tag=$LOCAL_TAG"
-elif [ "$PIN_BY_DIGEST" = "1" ]; then
-  : "${DIGEST:?Set DIGEST=sha256:... or PIN_BY_DIGEST=0}"
-  docker manifest inspect "$GHCR_REPO@$DIGEST" >/dev/null || { echo "нет такого digest"; exit 1; }
+if [ "$PIN_BY_DIGEST" = "1" ]; then
+  : "${GHCR_TAG:?Set GHCR_TAG=<commit-sha> (to resolve digest)}"
+  docker manifest inspect "$GHCR_REPO:$GHCR_TAG" >/dev/null 2>&1 \
+    || { echo "❌ tag $GHCR_REPO:$GHCR_TAG not found in registry"; exit 1; }
+  if [ -z "${DIGEST:-}" ]; then
+    if command -v jq >/dev/null 2>&1; then
+      DIGEST=$(docker manifest inspect "$GHCR_REPO:$GHCR_TAG" \
+        | jq -r '.manifests[] | select(.platform.os=="linux" and .platform.architecture=="amd64") | .digest' \
+        | head -1)
+    else
+      DIGEST=$(docker manifest inspect "$GHCR_REPO:$GHCR_TAG" \
+        | grep -m1 -o 'sha256:[0-9a-f]\{64\}')
+    fi
+  fi
+  [ -n "$DIGEST" ] || { echo "❌ cannot resolve digest"; exit 1; }
   EXTRA="--set api.image.repository=$GHCR_REPO --set api.image.tag= --set-string api.image.digest=$DIGEST"
-else
-  : "${GHCR_TAG:?Set GHCR_TAG=<commit-sha> or PIN_BY_DIGEST=1}"
-  docker manifest inspect "$GHCR_REPO:$GHCR_TAG" >/dev/null || { echo "нет такого тега"; exit 1; }
-  EXTRA="--set api.image.repository=$GHCR_REPO --set api.image.tag=$GHCR_TAG --set api.image.digest="
 fi
 
 # Деплой
