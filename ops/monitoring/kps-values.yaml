@@ -1,0 +1,10 @@
+grafana:
+  adminPassword: "admin"   # dev-only
+  service:
+    type: ClusterIP
+prometheus:
+  service:
+    type: ClusterIP
+alertmanager:
+  service:
+    type: ClusterIP

@@ -1,0 +1,61 @@
+deploymentMode: SingleBinary
+
+loki:
+  auth_enabled: false
+
+  commonConfig:
+    replication_factor: 1
+
+  # Чарт ждёт bucketNames даже при filesystem
+  storage:
+    type: filesystem
+    bucketNames:
+      chunks: loki-chunks
+      ruler: loki-ruler
+      admin: loki-admin
+
+  # Рекомендуемый backend индекса — TSDB
+  schemaConfig:
+    configs:
+      - from: "2024-01-01"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+
+  # Физическое хранилище — локальная FS в контейнере
+  storage_config:
+    filesystem:
+      directory: /var/loki/chunks
+
+  # Правила (если будут) — локально
+  ruler:
+    storage:
+      type: local
+      local:
+        directory: /var/loki/rules
+
+  # Компактор — локальные пути
+  compactor:
+    working_directory: /var/loki/tsdb-compactor
+
+singleBinary:
+  replicas: 1
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: local-path 
+
+# ОБЯЗАТЕЛЬНО выключаем scalable-роли
+read:     { replicas: 0 }
+write:    { replicas: 0 }
+backend:  { replicas: 0 }
+gateway:  { enabled: false }
+
+# Отключаем всё лишнее, чтобы не тянулись memcached и т.п.
+resultsCache: { enabled: false }
+chunksCache:  { enabled: false }
+lokiCanary:   { enabled: false }
+test:         { enabled: false }
