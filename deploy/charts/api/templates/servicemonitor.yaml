@@ -3,7 +3,7 @@ kind: ServiceMonitor
 metadata:
   name: {{ include "api.fullname" . }}
   labels:
-    release: kps        # важно: совпадает с именем релиза kube-prometheus-stack
+    release: kps
 spec:
   selector:
     matchLabels:

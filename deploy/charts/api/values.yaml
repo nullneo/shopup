@@ -77,6 +77,12 @@ resources:
   limits:
     cpu: 300m
     memory: 256Mi
+    
+hpa:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  cpu: 70
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 livenessProbe:
