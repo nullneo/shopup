@@ -14,6 +14,7 @@ GHCR_TAG="${GHCR_TAG:-}"             # обязателен, если USE_LOCAL=
 PIN_BY_DIGEST="${PIN_BY_DIGEST:-0}"  # 1 = закрепить digest вместо tag
 LOCAL_IMAGE="${LOCAL_IMAGE:-shopup-api}"
 LOCAL_TAG="${LOCAL_TAG:-dev}"
+API_HPA_NAME="${API_HPA_NAME:-shopup-api}"
 
 # Хост для smoke-теста
 HOST="${HOST:-api.shopup.localhost}"
@@ -45,6 +46,8 @@ kubectl config use-context "k3d-$CLUSTER" >/dev/null
 ensure_ns cert-manager
 ensure_ns "$NS"
 ensure_ns "$MON_NS"
+
+kubectl -n "$NS" delete hpa "$API_HPA_NAME" --ignore-not-found
 
 # ---------- Monitoring (Loki + Promtail + kube-prometheus-stack) ----------
 if [[ "$INSTALL_MONITORING" = "1" ]]; then
